@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Smart Fertilizer Planner{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2><i class="bi bi-speedometer2"></i> Dashboard</h2>
+        <p class="text-muted">Welcome back, {{ user.get_full_name|default:user.username }}!</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="stat-card text-center">
+            <i class="bi bi-map" style="font-size: 2rem;"></i>
+            <h3>{{ total_parcels }}</h3>
+            <p>Total Parcels</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card text-center" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <i class="bi bi-rulers" style="font-size: 2rem;"></i>
+            <h3>{{ total_area|floatformat:2 }}</h3>
+            <p>Total Area (ha)</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card text-center" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <i class="bi bi-file-earmark-check" style="font-size: 2rem;"></i>
+            <h3>{{ parcels_with_tests }}</h3>
+            <p>Soil Tests Done</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card text-center" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+            <i class="bi bi-clipboard-check" style="font-size: 2rem;"></i>
+            <h3>{{ user.recommendations.count }}</h3>
+            <p>Recommendations</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-map"></i> Recent Land Parcels</h5>
+                <a href="{% url 'parcels:parcel_create' %}" class="btn btn-sm btn-light">
+                    <i class="bi bi-plus-circle"></i> Add New
+                </a>
+            </div>
+            <div class="card-body">
+                {% if parcels %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Location</th>
+                                <th>Area (ha)</th>
+                                <th>Crop</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for parcel in parcels %}
+                            <tr>
+                                <td>{{ parcel.name }}</td>
+                                <td>{{ parcel.location }}</td>
+                                <td>{{ parcel.area_hectares }}</td>
+                                <td>{{ parcel.crop.name|default:"Not assigned" }}</td>
+                                <td>
+                                    <a href="{% url 'parcels:parcel_detail' parcel.pk %}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="{% url 'parcels:parcel_list' %}" class="btn btn-outline-primary">View All Parcels</a>
+                {% else %}
+                <p class="text-center text-muted">No land parcels yet. <a href="{% url 'parcels:parcel_create' %}">Create your first parcel</a></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-lightning-charge"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="{% url 'parcels:parcel_create' %}" class="btn btn-primary w-100 mb-2">
+                    <i class="bi bi-plus-circle"></i> Add Land Parcel
+                </a>
+                <a href="{% url 'parcels:crop_list' %}" class="btn btn-success w-100 mb-2">
+                    <i class="bi bi-flower1"></i> Manage Crops
+                </a>
+                <a href="{% url 'fertilizers:product_list' %}" class="btn btn-warning w-100 mb-2">
+                    <i class="bi bi-box-seam"></i> Manage Fertilizers
+                </a>
+                <a href="{% url 'reports:recommendation_history' %}" class="btn btn-info w-100">
+                    <i class="bi bi-file-earmark-text"></i> View Reports
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

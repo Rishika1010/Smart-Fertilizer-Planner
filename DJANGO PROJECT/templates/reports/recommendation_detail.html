@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+
+{% block title %}Recommendation Details - Smart Fertilizer Planner{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12 d-flex justify-content-between align-items-center">
+        <h2><i class="bi bi-file-earmark-text"></i> Fertilizer Recommendation</h2>
+        <div>
+            <a href="{% url 'reports:export_pdf' recommendation.pk %}" class="btn btn-danger">
+                <i class="bi bi-file-pdf"></i> Export PDF
+            </a>
+            <a href="{% url 'reports:export_csv' recommendation.pk %}" class="btn btn-success">
+                <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Parcel Information</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <tr>
+                        <th>Parcel Name:</th>
+                        <td>{{ recommendation.parcel.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Location:</th>
+                        <td>{{ recommendation.parcel.location }}</td>
+                    </tr>
+                    <tr>
+                        <th>Area:</th>
+                        <td>{{ recommendation.parcel.area_hectares }} hectares</td>
+                    </tr>
+                    <tr>
+                        <th>Crop:</th>
+                        <td>{{ recommendation.parcel.crop.name }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-clipboard-data"></i> Soil Test Data</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <tr>
+                        <th>Nitrogen (ppm):</th>
+                        <td>{{ recommendation.soil_nitrogen_ppm }}</td>
+                    </tr>
+                    <tr>
+                        <th>Phosphorus (ppm):</th>
+                        <td>{{ recommendation.soil_phosphorus_ppm }}</td>
+                    </tr>
+                    <tr>
+                        <th>Potassium (ppm):</th>
+                        <td>{{ recommendation.soil_potassium_ppm }}</td>
+                    </tr>
+                    <tr>
+                        <th>pH Level:</th>
+                        <td>{{ recommendation.soil_ph }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-graph-up"></i> Nutrient Analysis</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Nutrient</th>
+                                <th>Crop Requirement (kg/ha)</th>
+                                <th>Recommended Application (kg)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Nitrogen (N)</strong></td>
+                                <td>{{ recommendation.crop_nitrogen_requirement }}</td>
+                                <td>{{ recommendation.nitrogen_needed_kg|floatformat:2 }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Phosphorus (P)</strong></td>
+                                <td>{{ recommendation.crop_phosphorus_requirement }}</td>
+                                <td>{{ recommendation.phosphorus_needed_kg|floatformat:2 }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Potassium (K)</strong></td>
+                                <td>{{ recommendation.crop_potassium_requirement }}</td>
+                                <td>{{ recommendation.potassium_needed_kg|floatformat:2 }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-box-seam"></i> Recommended Fertilizers</h5>
+                <span class="badge bg-primary">Generated: {{ recommendation.generated_at|date:"Y-m-d H:i" }}</span>
+            </div>
+            <div class="card-body">
+                {% if items %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-success">
+                            <tr>
+                                <th>Fertilizer</th>
+                                <th>NPK Ratio</th>
+                                <th>Quantity</th>
+                                <th>Unit</th>
+                                <th>Cost (USD)</th>
+                                <th>Nutrient Contribution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td><strong>{{ item.fertilizer.name }}</strong>
+                                    {% if item.fertilizer.brand %}
+                                    <br><small class="text-muted">{{ item.fertilizer.brand }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.fertilizer.nitrogen_percent }}-{{ item.fertilizer.phosphorus_percent }}-{{ item.fertilizer.potassium_percent }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.unit }}</td>
+                                <td><strong>${{ item.cost|floatformat:2 }}</strong></td>
+                                <td>
+                                    {% if item.nitrogen_contribution_kg > 0 %}
+                                        N: {{ item.nitrogen_contribution_kg|floatformat:2 }} kg<br>
+                                    {% endif %}
+                                    {% if item.phosphorus_contribution_kg > 0 %}
+                                        P: {{ item.phosphorus_contribution_kg|floatformat:2 }} kg<br>
+                                    {% endif %}
+                                    {% if item.potassium_contribution_kg > 0 %}
+                                        K: {{ item.potassium_contribution_kg|floatformat:2 }} kg
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-info">
+                            <tr>
+                                <th colspan="4" class="text-end">Estimated Total Cost:</th>
+                                <th colspan="2">${{ recommendation.estimated_total_cost|floatformat:2 }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No fertilizers recommended.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if recommendation.notes %}
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-journal-text"></i> Notes</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ recommendation.notes }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <a href="{% url 'reports:recommendation_history' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to History
+        </a>
+        <a href="{% url 'parcels:parcel_detail' recommendation.parcel.pk %}" class="btn btn-primary">
+            <i class="bi bi-map"></i> View Parcel
+        </a>
+    </div>
+</div>
+{% endblock %}
+

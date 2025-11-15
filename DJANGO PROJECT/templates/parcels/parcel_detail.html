@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ parcel.name }} - Smart Fertilizer Planner{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12 d-flex justify-content-between align-items-center">
+        <h2><i class="bi bi-map"></i> {{ parcel.name }}</h2>
+        <div>
+            <a href="{% url 'parcels:parcel_update' parcel.pk %}" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            <a href="{% url 'parcels:parcel_delete' parcel.pk %}" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Delete
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Parcel Information</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <tr>
+                        <th>Name:</th>
+                        <td>{{ parcel.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Location:</th>
+                        <td>{{ parcel.location }}</td>
+                    </tr>
+                    <tr>
+                        <th>Area:</th>
+                        <td>{{ parcel.area_hectares }} hectares</td>
+                    </tr>
+                    <tr>
+                        <th>Crop:</th>
+                        <td>{{ parcel.crop.name|default:"Not assigned" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Soil Type:</th>
+                        <td>{{ parcel.get_soil_type_display }}</td>
+                    </tr>
+                    {% if parcel.description %}
+                    <tr>
+                        <th>Description:</th>
+                        <td>{{ parcel.description }}</td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-clipboard-data"></i> Soil Test Data</h5>
+            </div>
+            <div class="card-body">
+                {% if soil_test %}
+                <table class="table">
+                    <tr>
+                        <th>Test Date:</th>
+                        <td>{{ soil_test.test_date }}</td>
+                    </tr>
+                    <tr>
+                        <th>Nitrogen (ppm):</th>
+                        <td>{{ soil_test.nitrogen_ppm }}</td>
+                    </tr>
+                    <tr>
+                        <th>Phosphorus (ppm):</th>
+                        <td>{{ soil_test.phosphorus_ppm }}</td>
+                    </tr>
+                    <tr>
+                        <th>Potassium (ppm):</th>
+                        <td>{{ soil_test.potassium_ppm }}</td>
+                    </tr>
+                    <tr>
+                        <th>pH Level:</th>
+                        <td>{{ soil_test.ph_level }}</td>
+                    </tr>
+                    <tr>
+                        <th>Organic Matter (%):</th>
+                        <td>{{ soil_test.organic_matter_percent }}%</td>
+                    </tr>
+                </table>
+                <a href="{% url 'parcels:soil_test_update' soil_test.pk %}" class="btn btn-warning btn-sm">
+                    <i class="bi bi-pencil"></i> Update Soil Test
+                </a>
+                {% else %}
+                <p class="text-muted">No soil test data available.</p>
+                <a href="{% url 'parcels:soil_test_create' parcel.pk %}" class="btn btn-primary">
+                    <i class="bi bi-upload"></i> Upload Soil Test
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if soil_test and parcel.crop %}
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-calculator"></i> Generate Fertilizer Recommendation</h5>
+            </div>
+            <div class="card-body">
+                <p>Generate a customized fertilizer recommendation based on your soil test data and crop requirements.</p>
+                <a href="{% url 'fertilizers:generate_recommendation' parcel.pk %}" class="btn btn-success btn-lg">
+                    <i class="bi bi-lightning-charge"></i> Generate Recommendation
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> Previous Recommendations</h5>
+            </div>
+            <div class="card-body">
+                {% if parcel.recommendations.all %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Generated On</th>
+                                <th>Status</th>
+                                <th>Total Cost</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rec in parcel.recommendations.all %}
+                            <tr>
+                                <td>{{ rec.generated_at|date:"Y-m-d H:i" }}</td>
+                                <td><span class="badge bg-{% if rec.status == 'applied' %}success{% elif rec.status == 'finalized' %}primary{% else %}secondary{% endif %}">{{ rec.get_status_display }}</span></td>
+                                <td>${{ rec.estimated_total_cost }}</td>
+                                <td>
+                                    <a href="{% url 'reports:recommendation_detail' rec.pk %}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No recommendations generated yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

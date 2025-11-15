@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Land Parcels - Smart Fertilizer Planner{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12 d-flex justify-content-between align-items-center">
+        <h2><i class="bi bi-map"></i> Land Parcels</h2>
+        <a href="{% url 'parcels:parcel_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add New Parcel
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                {% if parcels %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Location</th>
+                                <th>Area (ha)</th>
+                                <th>Crop</th>
+                                <th>Soil Type</th>
+                                <th>Soil Test</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for parcel in parcels %}
+                            <tr>
+                                <td>{{ parcel.name }}</td>
+                                <td>{{ parcel.location }}</td>
+                                <td>{{ parcel.area_hectares }}</td>
+                                <td>{{ parcel.crop.name|default:"Not assigned" }}</td>
+                                <td>{{ parcel.get_soil_type_display }}</td>
+                                <td>
+                                    {% if parcel.soil_test %}
+                                        <span class="badge bg-success">Yes</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">No</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'parcels:parcel_detail' parcel.pk %}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'parcels:parcel_update' parcel.pk %}" class="btn btn-sm btn-warning">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'parcels:parcel_delete' parcel.pk %}" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-map" style="font-size: 4rem; color: #ccc;"></i>
+                    <p class="text-muted mt-3">No land parcels yet. <a href="{% url 'parcels:parcel_create' %}">Create your first parcel</a></p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

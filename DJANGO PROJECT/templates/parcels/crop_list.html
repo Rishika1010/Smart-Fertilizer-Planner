@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Crops - Smart Fertilizer Planner{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12 d-flex justify-content-between align-items-center">
+        <h2><i class="bi bi-flower1"></i> Crops</h2>
+        <a href="{% url 'parcels:crop_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add New Crop
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                {% if crops %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>N Requirement (kg/ha)</th>
+                                <th>P Requirement (kg/ha)</th>
+                                <th>K Requirement (kg/ha)</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for crop in crops %}
+                            <tr>
+                                <td><strong>{{ crop.name }}</strong></td>
+                                <td>{{ crop.nitrogen_requirement }}</td>
+                                <td>{{ crop.phosphorus_requirement }}</td>
+                                <td>{{ crop.potassium_requirement }}</td>
+                                <td>{{ crop.description|truncatewords:10 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-flower1" style="font-size: 4rem; color: #ccc;"></i>
+                    <p class="text-muted mt-3">No crops defined yet. <a href="{% url 'parcels:crop_create' %}">Add your first crop</a></p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

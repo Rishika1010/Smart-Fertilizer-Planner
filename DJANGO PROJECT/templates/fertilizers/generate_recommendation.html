@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Generate Recommendation - Smart Fertilizer Planner{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-lightning-charge"></i> Generate Fertilizer Recommendation</h4>
+            </div>
+            <div class="card-body">
+                <h5>Parcel: {{ parcel.name }}</h5>
+                <p class="text-muted">Generate a customized fertilizer recommendation based on:</p>
+                <ul>
+                    <li><strong>Crop:</strong> {{ parcel.crop.name }}</li>
+                    <li><strong>Area:</strong> {{ parcel.area_hectares }} hectares</li>
+                    <li><strong>Soil Test Data:</strong> Available</li>
+                </ul>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes (Optional)</label>
+                        <textarea name="notes" id="notes" class="form-control" rows="3" placeholder="Add any notes about this recommendation..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="bi bi-lightning-charge"></i> Generate Recommendation
+                    </button>
+                    <a href="{% url 'parcels:parcel_detail' parcel.pk %}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
